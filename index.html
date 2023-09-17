@@ -60,14 +60,12 @@
             dropdown.append("option").text(subject).property("value", subject);
           });
 
-          // Initialize the page with data for the first subject
           updateCharts(subjectIds[0]);
         })
         .catch(function(error) {
           console.error("Error loading JSON data:", error);
         });
 
-      // Add an event listener to the dropdown
       dropdown.on("change", function() {
         const selectedSubject = this.value;
         updateCharts(selectedSubject);
@@ -101,6 +99,9 @@
           displayMetadata(metadata);
           displayMetadataInfo(metadata);
           updateBubbleChart(selectedData);
+
+          const washFrequency = metadata.wfreq || 0;
+          updateGaugeChart(washFrequency);
         })
         .catch(function(error) {
           console.error("Error loading JSON data:", error);
@@ -123,6 +124,35 @@
       for (const [key, value] of Object.entries(metadata)) {
         metadataInfoDiv.append("p").text(`${key}: ${value}`);
       }
+    }
+
+    function updateGaugeChart(washFrequency) {
+      const data = [
+        {
+          domain: { x: [0, 1], y: [0, 1] },
+          value: washFrequency,
+          title: { text: "Weekly Washing Frequency" },
+          type: "indicator",
+          mode: "gauge+number",
+          gauge: {
+            axis: { range: [0, 9] },
+            steps: [
+              { range: [0, 1], color: "lightgray" },
+              { range: [1, 2], color: "lightyellow" },
+              { range: [2, 3], color: "yellow" },
+              { range: [3, 4], color: "gold" },
+              { range: [4, 5], color: "orange" },
+              { range: [5, 6], color: "darkorange" },
+              { range: [6, 7], color: "tomato" },
+              { range: [7, 8], color: "red" },
+              { range: [8, 9], color: "darkred" },
+            ],
+          },
+        },
+      ];
+
+      const layout = { width: 400, height: 300, margin: { t: 0, b: 0 } };
+      Plotly.newPlot("gauge", data, layout);
     }
 
     function updateBubbleChart(selectedData) {
