@@ -35,7 +35,6 @@ Bar chart showing the top 10 OTUs.
 Bubble chart displaying microbial diversity.
 Demographic information.
 Gauge chart showing the weekly washing frequency.
-Explore the data and visualizations by selecting different test subject IDs from the dropdown.
 
 #### References
 Hulcr, J. et al. (2012) A Jungle in There: Bacteria in Belly Buttons are Highly Diverse, but Predictable. Retrieved from: http://robdunnlab.com/projects/belly-button-biodiversity/results-and-data/Links to an external site.
