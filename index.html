@@ -49,6 +49,112 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="./static/js/app.js"></script>
   <script src="./static/js/bonus.js"></script>
+  <script>
+    function init() {
+      const dropdown = d3.select("#selDataset");
+
+      d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json")
+        .then(function(data) {
+          const subjectIds = data.names;
+          subjectIds.forEach(subject => {
+            dropdown.append("option").text(subject).property("value", subject);
+          });
+
+          // Initialize the page with data for the first subject
+          updateCharts(subjectIds[0]);
+        })
+        .catch(function(error) {
+          console.error("Error loading JSON data:", error);
+        });
+
+      // Add an event listener to the dropdown
+      dropdown.on("change", function() {
+        const selectedSubject = this.value;
+        updateCharts(selectedSubject);
+      });
+    }
+
+    function updateCharts(selectedSubject) {
+      d3.json("https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json")
+        .then(function(data) {
+          const selectedData = data.samples.find(sample => sample.id === selectedSubject);
+          const metadata = data.metadata.find(item => item.id === parseInt(selectedSubject));
+
+          const sortedData = selectedData.sample_values.slice(0, 10).reverse();
+          const otuIds = selectedData.otu_ids.slice(0, 10).map(id => `OTU ${id}`);
+          const otuLabels = selectedData.otu_labels.slice(0, 10);
+
+          const trace = {
+            x: sortedData,
+            y: otuIds,
+            text: otuLabels,
+            type: 'bar',
+            orientation: 'h'
+          };
+
+          const layout = {
+            title: `Top 10 OTUs for Subject ${selectedSubject}`,
+            xaxis: { title: 'Sample Values' },
+          };
+
+          Plotly.newPlot('bar', [trace], layout);
+          displayMetadata(metadata);
+          displayMetadataInfo(metadata);
+          updateBubbleChart(selectedData);
+        })
+        .catch(function(error) {
+          console.error("Error loading JSON data:", error);
+        });
+    }
+
+    function displayMetadata(metadata) {
+      const metadataDiv = d3.select("#sample-metadata");
+      metadataDiv.html("");
+
+      for (const [key, value] of Object.entries(metadata)) {
+        metadataDiv.append("p").text(`${key}: ${value}`);
+      }
+    }
+
+    function displayMetadataInfo(metadata) {
+      const metadataInfoDiv = d3.select("#metadata-info");
+      metadataInfoDiv.html("");
+
+      for (const [key, value] of Object.entries(metadata)) {
+        metadataInfoDiv.append("p").text(`${key}: ${value}`);
+      }
+    }
+
+    function updateBubbleChart(selectedData) {
+      const otuIds = selectedData.otu_ids;
+      const sampleValues = selectedData.sample_values;
+      const markerColors = otuIds;
+      const textValues = selectedData.otu_labels;
+
+      const trace = {
+        x: otuIds,
+        y: sampleValues,
+        text: textValues,
+        mode: 'markers',
+        marker: {
+          size: sampleValues,
+          color: markerColors,
+          colorscale: 'Viridis',
+          opacity: 0.7
+        }
+      };
+
+      const layout = {
+        title: `Bubble Chart for Subject ${selectedData.id}`,
+        xaxis: { title: 'OTU IDs' },
+        yaxis: { title: 'Sample Values' }
+      };
+
+      Plotly.newPlot('bubble', [trace], layout);
+    }
+
+    init();
+  </script>
 
 </body>
 
